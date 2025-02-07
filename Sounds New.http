@@ -1,0 +1,6 @@
+@Sounds_New_HostAddress = http://localhost:5129
+
+GET {{Sounds_New_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
