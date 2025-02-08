@@ -90,6 +90,13 @@ namespace Sounds_New.Controllers
             return CreatedAtAction(nameof(GetTrack), new { id = track.Id }, new { track.Id, track.Title, track.Slug, track.AudioFilePath });
         }
 
+        [HttpGet("hot")]
+        public async Task<ActionResult<List<Track>>> GetHotTracks()
+        {
+            var tracks = await _context.Tracks.OrderByDescending(t => t.Likes).Take(10).ToListAsync();
+            return Ok(tracks);
+        }
+
         // [HttpPut("{id}")]
         // public IActionResult UpdateTrack(int id, Track newTrackData)
         // {
