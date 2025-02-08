@@ -76,6 +76,9 @@ _[Ss]cripts
 
 *.db
 .vs
+*.db-*
 
 appsettings.json
 appsettings.json
+
+uploads/

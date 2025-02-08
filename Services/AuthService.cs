@@ -98,6 +98,14 @@ namespace Sounds_New.Services
             return response;
         }
 
+        public async Task<User?> GetMe(string username)
+        {
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Username == username);
+
+            return user;
+        }
+
         private string GenerateAccessToken(User user)
         {
             var claims = new List<Claim>
@@ -124,7 +132,7 @@ namespace Sounds_New.Services
             return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
         }
 
-        private string GenerateRefreshToken()
+        private static string GenerateRefreshToken()
         {
             var randomNumber = new byte[32];
             using var rng = RandomNumberGenerator.Create();

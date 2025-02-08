@@ -9,8 +9,8 @@
         public required string[] Genres { get; set; } = [];
         public required string AudioFilePath { get; set; }
         public required string ImageFilePath { get; set; }
-        public required bool IsPublic { get; set; } = false;
-        public required bool IsDownloadsEnabled { get; set; } = false;
+        public bool IsPublic { get; set; } = false;
+        public bool IsDownloadsEnabled { get; set; } = false;
         public int[] Peaks { get; set; } = [];
         public int Duration { get; set; } = 0;
         public int Listens { get; set; } = 0;

@@ -66,10 +66,24 @@ namespace Sounds_New.Controllers
         } 
 
         [Authorize]
+        [HttpGet("me")]
+        public async Task<IActionResult> GetMe()
+        {
+            if (User.Identity == null || User.Identity.Name == null)
+            {
+                return Unauthorized();
+            }
+
+            var user = await _authService.GetMe(User.Identity.Name);
+            return Ok(user);
+        }
+
+        [Authorize]
         [HttpGet("auth-only")]
         public IActionResult AuthOnlyEndpoint()
         {
-            return Ok("You are authenticated!");
+            var user = User.Identity.Name;
+            return Ok(user);
         }
 
         [CustomAuthorize(UserRoles.Admin)]

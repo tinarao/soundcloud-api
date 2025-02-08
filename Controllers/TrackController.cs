@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Slugify;
 using Sounds_New.Db;
 using Sounds_New.DTO;
 using Sounds_New.Models;
@@ -31,30 +33,62 @@ namespace Sounds_New.Controllers
             return Ok(track);
         }
 
-        // [HttpPost]
-        // public async Task<ActionResult<Track>> CreateTrack([FromForm] CreateTrackDTO dto)
-        // {
-        //     if (dto is null)
-        //     {
-        //         return BadRequest();
-        //     }
+        [Authorize]
+        [HttpPost]
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<Track>> CreateTrack([FromForm] CreateTrackDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return UnprocessableEntity(ModelState);
+            }
 
-        //     if (!ModelState.IsValid)
-        //     {
-        //         return UnprocessableEntity();
-        //     }
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == User.Identity.Name);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
 
-        //     var track = new Track
-        //     {
-        //         Title = dto.Title,
-        //         Slug = dto.Slug,
-        //     };
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
 
-        //     var created = await _context.Tracks.AddAsync(track);
-        //     await _context.SaveChangesAsync();
+            var artworkFileName = $"{Guid.NewGuid()}_{dto.ArtworkFile.FileName}";
+            var artworkFilePath = Path.Combine(uploadsFolder, artworkFileName);
 
-            // return CreatedAtAction(nameof(GetTrack), new { id = track.Id }, track);
-        // }
+            using (var stream = new FileStream(artworkFilePath, FileMode.Create))
+            {
+                await dto.ArtworkFile.CopyToAsync(stream);
+            }
+
+            var audioFileName = $"{Guid.NewGuid()}_{dto.AudioFile.FileName}";
+            var audioFilePath = Path.Combine(uploadsFolder, audioFileName);
+
+            using (var stream = new FileStream(audioFilePath, FileMode.Create))
+            {
+                await dto.AudioFile.CopyToAsync(stream);
+            }
+
+            var slug = new SlugHelper().GenerateSlug($"{dto.Title}-by-{user.Username}");
+
+            var track = new Track
+            {
+                Title = dto.Title,
+                Slug = slug,
+                Genres = dto.Genres,
+                ImageFilePath = artworkFilePath,
+                AudioFilePath = audioFilePath,
+                UserId = user.Id,
+                User = user
+            };
+
+            var created = await _context.Tracks.AddAsync(track);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetTrack), new { id = track.Id }, new { track.Id, track.Title, track.Slug, track.AudioFilePath });
+        }
 
         // [HttpPut("{id}")]
         // public IActionResult UpdateTrack(int id, Track newTrackData)
