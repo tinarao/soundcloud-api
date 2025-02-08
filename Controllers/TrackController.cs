@@ -1,25 +1,28 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Sounds_New.Db;
+using Sounds_New.DTO;
 using Sounds_New.Models;
 
 namespace Sounds_New.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TrackController : ControllerBase
+    public class TrackController(SoundsContext context) : ControllerBase
     {
-
-        static private List<Track> tracks = [];
+        private readonly SoundsContext _context = context;
 
         [HttpGet]
-        public ActionResult<List<Track>> GetTracks()
+        public async Task<ActionResult<List<Track>>> GetTracks()
         {
+            var tracks = await _context.Tracks.ToListAsync();
             return Ok(tracks);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Track> GetTrack(int id)
+        public async Task<ActionResult<Track>> GetTrack(int id)
         {
-            var track = tracks.FirstOrDefault(x => x.Id == id);
+            var track = await _context.Tracks.FindAsync(id);
             if (track is null)
             {
                 return NotFound();
@@ -28,49 +31,60 @@ namespace Sounds_New.Controllers
             return Ok(track);
         }
 
-        [HttpPost]
-        public ActionResult<Track> CreateTrack(Track track)
-        {
-            if (track is null)
-            {
-                return BadRequest();
-            }
+        // [HttpPost]
+        // public async Task<ActionResult<Track>> CreateTrack([FromForm] CreateTrackDTO dto)
+        // {
+        //     if (dto is null)
+        //     {
+        //         return BadRequest();
+        //     }
 
-            track.Id = tracks.Max(t => t.Id) + 1;
-            tracks.Add(track);
+        //     if (!ModelState.IsValid)
+        //     {
+        //         return UnprocessableEntity();
+        //     }
 
-            return CreatedAtAction(nameof(GetTrack), new { id = track.Id }, track);
-        }
+        //     var track = new Track
+        //     {
+        //         Title = dto.Title,
+        //         Slug = dto.Slug,
+        //     };
 
-        [HttpPut("{id}")]
-        public IActionResult UpdateTrack(int id, Track newTrackData)
-        {
-            var track = tracks.FirstOrDefault(t => t.Id == id);
-            if (track is null)
-            {
-                return NotFound();
-            }
+        //     var created = await _context.Tracks.AddAsync(track);
+        //     await _context.SaveChangesAsync();
 
-            track.Title = newTrackData.Title;
-            track.Slug = newTrackData.Slug;
-            track.Likes = newTrackData.Likes;
-            track.Listens = newTrackData.Listens;
-            track.Downloads = newTrackData.Downloads;
+            // return CreatedAtAction(nameof(GetTrack), new { id = track.Id }, track);
+        // }
 
-            return NoContent();
-        }
+        // [HttpPut("{id}")]
+        // public IActionResult UpdateTrack(int id, Track newTrackData)
+        // {
+        //     var track = tracks.FirstOrDefault(t => t.Id == id);
+        //     if (track is null)
+        //     {
+        //         return NotFound();
+        //     }
+
+        //     track.Title = newTrackData.Title;
+        //     track.Slug = newTrackData.Slug;
+        //     track.Likes = newTrackData.Likes;
+        //     track.Listens = newTrackData.Listens;
+        //     track.Downloads = newTrackData.Downloads;
+
+        //     return NoContent();
+        // }
     
-        [HttpDelete("{id}")]
-        public IActionResult DeleteTrack(int id)
-        {
-            var track = tracks.FirstOrDefault(t => t.Id == id);
-            if (track is null)
-            {
-                return NotFound();
-            }
+        // [HttpDelete("{id}")]
+        // public IActionResult DeleteTrack(int id)
+        // {
+        //     var track = tracks.FirstOrDefault(t => t.Id == id);
+        //     if (track is null)
+        //     {
+        //         return NotFound();
+        //     }
 
-            tracks.Remove(track);
-            return NoContent();
-        }
+        //     tracks.Remove(track);
+        //     return NoContent();
+        // }
     }
 }

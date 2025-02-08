@@ -16,7 +16,6 @@
         public int Listens { get; set; } = 0;
         public int Likes { get; set; } = 0;
         public int Downloads { get; set; } = 0;
-
         public int UserId { get; set; }
         public required User User { get; set; }
     }

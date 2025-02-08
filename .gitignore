@@ -76,3 +76,6 @@ _[Ss]cripts
 
 *.db
 .vs
+
+appsettings.json
+appsettings.json
