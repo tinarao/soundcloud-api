@@ -21,6 +21,12 @@ namespace Sounds_New.Db
             modelBuilder.Entity<User>()
                 .Property(u => u.CreatedAt)
                 .HasDefaultValueSql("DATETIME('now')");
+
+            // 
+
+            modelBuilder.Entity<Track>()
+                .HasIndex(t => t.Slug)
+                .IsUnique();
         }
     }
 }

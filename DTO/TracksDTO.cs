@@ -25,4 +25,10 @@ namespace Sounds_New.DTO
         [MinLength(1, ErrorMessage = "At least one genre is required.")]
         public string[] Genres { get; set; } = [];
     }
+
+    public class UpdateTrackDataDTO
+    {
+        [Required(ErrorMessage = "Peaks is required.")]
+        public int[] Peaks { get; set; }
+    }
 }

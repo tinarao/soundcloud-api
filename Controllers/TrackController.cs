@@ -5,6 +5,7 @@ using Slugify;
 using Sounds_New.Db;
 using Sounds_New.DTO;
 using Sounds_New.Models;
+using Sounds_New.Utils;
 
 namespace Sounds_New.Controllers
 {
@@ -49,6 +50,13 @@ namespace Sounds_New.Controllers
                 return Unauthorized();
             }
 
+            var duplicate = await _context.Tracks.AnyAsync(t => t.Title == dto.Title && t.UserId == user.Id);
+            if (duplicate)
+            {
+                ModelState.AddModelError("Title", "You already have a track with this title");
+                return UnprocessableEntity(ModelState);
+            }
+
             var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
             if (!Directory.Exists(uploadsFolder))
             {
@@ -87,6 +95,16 @@ namespace Sounds_New.Controllers
             var created = await _context.Tracks.AddAsync(track);
             await _context.SaveChangesAsync();
 
+            try
+            {
+                Utilites.SendTrackToAnalysisService(track);
+            }
+            catch (HttpRequestException)
+            {
+                Console.WriteLine("Failed to send track to analysis service");
+                // TODO: Handle this
+            }
+
             return CreatedAtAction(nameof(GetTrack), new { id = track.Id }, new { track.Id, track.Title, track.Slug, track.AudioFilePath });
         }
 
@@ -97,35 +115,26 @@ namespace Sounds_New.Controllers
             return Ok(tracks);
         }
 
-        // [HttpPut("{id}")]
-        // public IActionResult UpdateTrack(int id, Track newTrackData)
-        // {
-        //     var track = tracks.FirstOrDefault(t => t.Id == id);
-        //     if (track is null)
-        //     {
-        //         return NotFound();
-        //     }
+        [HttpPost("update-track-data/{id}")]
+        public async Task<ActionResult> UpdateTrackData(int id, UpdateTrackDataDTO dto)
+        {
+            // Specific endpoint for updating track data made specifically for the analysis service
 
-        //     track.Title = newTrackData.Title;
-        //     track.Slug = newTrackData.Slug;
-        //     track.Likes = newTrackData.Likes;
-        //     track.Listens = newTrackData.Listens;
-        //     track.Downloads = newTrackData.Downloads;
+            var track = await _context.Tracks.FindAsync(id);
+            if (track is null)
+            {
+                return NotFound();
+            }
 
-        //     return NoContent();
-        // }
-    
-        // [HttpDelete("{id}")]
-        // public IActionResult DeleteTrack(int id)
-        // {
-        //     var track = tracks.FirstOrDefault(t => t.Id == id);
-        //     if (track is null)
-        //     {
-        //         return NotFound();
-        //     }
+            if (!ModelState.IsValid)
+            {
+                return UnprocessableEntity(ModelState);
+            }
 
-        //     tracks.Remove(track);
-        //     return NoContent();
-        // }
+            track.Peaks = dto.Peaks;
+
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
     }
 }
