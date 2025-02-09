@@ -24,6 +24,7 @@ namespace Sounds_New.Models
         public UserRoles Role { get; set; } = UserRoles.User;
         public string? Bio { get; set; }
         public string? AvatarFilePath { get; set; }
+        public string? BannerFilePath { get; set; }
         public string[] Links { get; set; } = [];
         public string Password { get; set; }
 

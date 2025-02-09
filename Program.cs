@@ -1,17 +1,11 @@
-using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Slugify;
 using Sounds_New.Db;
-using Sounds_New.DTO;
-using Sounds_New.Models;
 using System.Text;
-using System.IdentityModel.Tokens.Jwt;
 using Scalar.AspNetCore;
 using Sounds_New.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Sounds_New.Services.Users;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +40,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 app.UseCors("Localhost");

@@ -119,6 +119,7 @@ namespace Sounds_New.Controllers
         public async Task<ActionResult> UpdateTrackData(int id, UpdateTrackDataDTO dto)
         {
             // Specific endpoint for updating track data made specifically for the analysis service
+            // and shall not be used by clients (some protection?)
 
             var track = await _context.Tracks.FindAsync(id);
             if (track is null)
