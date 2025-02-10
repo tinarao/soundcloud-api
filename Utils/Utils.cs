@@ -8,11 +8,6 @@ namespace Sounds_New.Utils
 {
     public class Utilites
     {
-        /// <summary>
-        ///   Sends a track to the analysis service for processing.
-        /// </summary>
-        /// <param name="track"></param>
-        /// <exception cref="HttpRequestException">Thrown when the HTTP request fails.</exception>
         public async static void SendTrackToAnalysisService(Track track)
         {
             var client = new HttpClient();

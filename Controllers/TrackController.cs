@@ -1,32 +1,22 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Slugify;
-using Sounds_New.Db;
 using Sounds_New.DTO;
 using Sounds_New.Models;
-using Sounds_New.Utils;
+using Sounds_New.Services.Tracks;
 
 namespace Sounds_New.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TrackController(SoundsContext context) : ControllerBase
+    public class TrackController(ITrackService trackService) : ControllerBase
     {
-        private readonly SoundsContext _context = context;
+        private readonly ITrackService _trackService = trackService;
 
-        [HttpGet]
-        public async Task<ActionResult<List<Track>>> GetTracks()
+        [HttpGet("{slug}")]
+        public async Task<ActionResult<List<Track>>> GetTrackBySlug(string slug)
         {
-            var tracks = await _context.Tracks.ToListAsync();
-            return Ok(tracks);
-        }
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Track>> GetTrack(int id)
-        {
-            var track = await _context.Tracks.FindAsync(id);
-            if (track is null)
+            var track = await _trackService.GetTrackBySlug(slug);
+            if (track == null)
             {
                 return NotFound();
             }
@@ -37,105 +27,51 @@ namespace Sounds_New.Controllers
         [Authorize]
         [HttpPost]
         [Consumes("multipart/form-data")]
-        public async Task<ActionResult<Track>> CreateTrack([FromForm] CreateTrackDTO dto)
+        public async Task<IActionResult> CreateTrack([FromForm] CreateTrackDTO dto)
         {
             if (!ModelState.IsValid)
             {
                 return UnprocessableEntity(ModelState);
             }
-
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == User.Identity.Name);
-            if (user == null)
+            if (User.Identity == null || User.Identity.Name == null)
             {
                 return Unauthorized();
             }
 
-            var duplicate = await _context.Tracks.AnyAsync(t => t.Title == dto.Title && t.UserId == user.Id);
-            if (duplicate)
+            var result = await _trackService.CreateTrack(dto, User.Identity.Name);
+            return result.Status switch
             {
-                ModelState.AddModelError("Title", "You already have a track with this title");
-                return UnprocessableEntity(ModelState);
-            }
-
-            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
-            if (!Directory.Exists(uploadsFolder))
-            {
-                Directory.CreateDirectory(uploadsFolder);
-            }
-
-            var artworkFileName = $"{Guid.NewGuid()}_{dto.ArtworkFile.FileName}";
-            var artworkFilePath = Path.Combine(uploadsFolder, artworkFileName);
-
-            using (var stream = new FileStream(artworkFilePath, FileMode.Create))
-            {
-                await dto.ArtworkFile.CopyToAsync(stream);
-            }
-
-            var audioFileName = $"{Guid.NewGuid()}_{dto.AudioFile.FileName}";
-            var audioFilePath = Path.Combine(uploadsFolder, audioFileName);
-
-            using (var stream = new FileStream(audioFilePath, FileMode.Create))
-            {
-                await dto.AudioFile.CopyToAsync(stream);
-            }
-
-            var slug = new SlugHelper().GenerateSlug($"{dto.Title}-by-{user.Username}");
-
-            var track = new Track
-            {
-                Title = dto.Title,
-                Slug = slug,
-                Genres = dto.Genres,
-                ImageFilePath = artworkFilePath,
-                AudioFilePath = audioFilePath,
-                UserId = user.Id,
-                User = user
+                400 => BadRequest(result.Message),
+                401 => Unauthorized(result.Message),
+                201 => CreatedAtAction(nameof(GetTrackBySlug), new { id = result.Track.Id }, new { result.Track.Id, result.Track.Title, result.Track.Slug, result.Track.AudioFilePath }),
+                _ => StatusCode(500, "An error occurred while creating the track")
             };
-
-            var created = await _context.Tracks.AddAsync(track);
-            await _context.SaveChangesAsync();
-
-            try
-            {
-                Utilites.SendTrackToAnalysisService(track);
-            }
-            catch (HttpRequestException)
-            {
-                Console.WriteLine("Failed to send track to analysis service");
-                // TODO: Handle this
-            }
-
-            return CreatedAtAction(nameof(GetTrack), new { id = track.Id }, new { track.Id, track.Title, track.Slug, track.AudioFilePath });
         }
 
         [HttpGet("hot")]
         public async Task<ActionResult<List<Track>>> GetHotTracks()
         {
-            var tracks = await _context.Tracks.OrderByDescending(t => t.Likes).Take(10).ToListAsync();
+            var tracks = await _trackService.GetHotTracks();
             return Ok(tracks);
         }
 
         [HttpPost("update-track-data/{id}")]
-        public async Task<ActionResult> UpdateTrackData(int id, UpdateTrackDataDTO dto)
+        public async Task<ActionResult> UpdateTrackData(UpdateTrackDataDTO dto, int id)
         {
             // Specific endpoint for updating track data made specifically for the analysis service
             // and shall not be used by clients (some protection?)
-
-            var track = await _context.Tracks.FindAsync(id);
-            if (track is null)
-            {
-                return NotFound();
-            }
 
             if (!ModelState.IsValid)
             {
                 return UnprocessableEntity(ModelState);
             }
 
-            track.Peaks = dto.Peaks;
-
-            await _context.SaveChangesAsync();
-            return NoContent();
+            var status = await _trackService.UpdateTrackData(dto, id);
+            return status switch
+            {
+                UpdateTrackDataStatus.Success => Ok(),
+                UpdateTrackDataStatus.TrackNotFound => NotFound()
+            };
         }
     }
 }

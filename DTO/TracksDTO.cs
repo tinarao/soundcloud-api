@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Sounds_New.Models;
 
 #nullable disable
 
@@ -24,6 +25,13 @@ namespace Sounds_New.DTO
         [Required(ErrorMessage = "At least one genre is required.")]
         [MinLength(1, ErrorMessage = "At least one genre is required.")]
         public string[] Genres { get; set; } = [];
+    }
+
+    public class CreateTrackResultDTO
+    {
+        public required int Status { get; set; }
+        public required string Message { get; set; }
+        public Track Track { get; set; }
     }
 
     public class UpdateTrackDataDTO

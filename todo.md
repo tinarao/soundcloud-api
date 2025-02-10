@@ -1,0 +1,2 @@
+- Docker compose
+  - depends on analysis service
