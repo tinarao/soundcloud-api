@@ -7,6 +7,7 @@ namespace Sounds_New.Db
     {
         public DbSet<Track> Tracks => Set<Track>();
         public DbSet<User> Users => Set<User>();
+        public DbSet<Subscription> Subscriptions => Set<Subscription>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

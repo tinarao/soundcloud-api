@@ -70,7 +70,8 @@ namespace Sounds_New.Controllers
             return status switch
             {
                 UpdateTrackDataStatus.Success => Ok(),
-                UpdateTrackDataStatus.TrackNotFound => NotFound()
+                UpdateTrackDataStatus.TrackNotFound => NotFound(),
+                _ => StatusCode(500, "An error occurred while updating the track data")
             };
         }
     }

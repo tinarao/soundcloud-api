@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Sounds_New.Db;
 
@@ -10,33 +11,14 @@ using Sounds_New.Db;
 namespace Sounds_New.Migrations
 {
     [DbContext(typeof(SoundsContext))]
-    partial class SoundsContextModelSnapshot : ModelSnapshot
+    [Migration("20250211213459_AddSubs")]
+    partial class AddSubs
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.1");
-
-            modelBuilder.Entity("Sounds_New.Models.Subscription", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("SubscriberId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SubscriberId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Subscriptions");
-                });
 
             modelBuilder.Entity("Sounds_New.Models.Track", b =>
                 {
@@ -162,23 +144,19 @@ namespace Sounds_New.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Sounds_New.Models.Subscription", b =>
+            modelBuilder.Entity("UserUser", b =>
                 {
-                    b.HasOne("Sounds_New.Models.User", "Subscriber")
-                        .WithMany()
-                        .HasForeignKey("SubscriberId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Property<int>("SubscribersId")
+                        .HasColumnType("INTEGER");
 
-                    b.HasOne("Sounds_New.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Property<int>("SubscriptionsId")
+                        .HasColumnType("INTEGER");
 
-                    b.Navigation("Subscriber");
+                    b.HasKey("SubscribersId", "SubscriptionsId");
 
-                    b.Navigation("User");
+                    b.HasIndex("SubscriptionsId");
+
+                    b.ToTable("UserUser");
                 });
 
             modelBuilder.Entity("Sounds_New.Models.Track", b =>
@@ -190,6 +168,21 @@ namespace Sounds_New.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("UserUser", b =>
+                {
+                    b.HasOne("Sounds_New.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("SubscribersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sounds_New.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("SubscriptionsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Sounds_New.Models.User", b =>

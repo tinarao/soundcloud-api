@@ -24,7 +24,7 @@ namespace Sounds_New.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return UnprocessableEntity("Некорректный запрос");
             }
 
             var user = await _authService.Register(dto);
@@ -44,7 +44,7 @@ namespace Sounds_New.Controllers
                 return BadRequest(ModelState);
             }
 
-            var tokens = await _authService.Login(dto);     
+            var tokens = await _authService.Login(dto);
             if (tokens == null)
             {
                 return Unauthorized("Provided credentials don't match our records");
@@ -63,7 +63,7 @@ namespace Sounds_New.Controllers
             }
 
             return Ok(tokens);
-        } 
+        }
 
         [Authorize]
         [HttpGet("me")]

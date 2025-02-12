@@ -6,6 +6,7 @@ using Scalar.AspNetCore;
 using Sounds_New.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Sounds_New.Services.Users;
+using Sounds_New.Services.Subscriptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,6 +42,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ISubscriptionsService, SubscriptionsService>();
 
 var app = builder.Build();
 app.UseCors("Localhost");
