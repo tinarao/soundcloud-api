@@ -37,6 +37,6 @@ namespace Sounds_New.DTO
     public class UpdateTrackDataDTO
     {
         [Required(ErrorMessage = "Peaks is required.")]
-        public int[] Peaks { get; set; }
+        public float[] Peaks { get; set; }
     }
 }

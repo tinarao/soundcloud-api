@@ -24,6 +24,25 @@ namespace Sounds_New.Controllers
             return Ok(track);
         }
 
+        [HttpGet("hot")]
+        public async Task<ActionResult<List<Track>>> GetHotTracks()
+        {
+            var tracks = await _trackService.GetHotTracks();
+            return Ok(tracks);
+        }
+
+        [HttpGet("by-user/{userSlug}")]
+        public async Task<IActionResult> GetUserPublicTracks(string userSlug)
+        {
+            var tracks = await _trackService.GetUserPublicTracks(userSlug);
+            if (tracks == null)
+            {
+                return NotFound("Пользователь и/или треки не найдены");
+            }
+
+            return Ok(tracks);
+        }
+
         [Authorize]
         [HttpPost]
         [Consumes("multipart/form-data")]
@@ -46,13 +65,6 @@ namespace Sounds_New.Controllers
                 201 => CreatedAtAction(nameof(GetTrackBySlug), new { id = result.Track.Id }, new { result.Track.Id, result.Track.Title, result.Track.Slug, result.Track.AudioFilePath }),
                 _ => StatusCode(500, "An error occurred while creating the track")
             };
-        }
-
-        [HttpGet("hot")]
-        public async Task<ActionResult<List<Track>>> GetHotTracks()
-        {
-            var tracks = await _trackService.GetHotTracks();
-            return Ok(tracks);
         }
 
         [HttpPost("update-track-data/{id}")]

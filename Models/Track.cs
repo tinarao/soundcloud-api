@@ -11,7 +11,7 @@
         public required string ImageFilePath { get; set; }
         public bool IsPublic { get; set; } = false;
         public bool IsDownloadsEnabled { get; set; } = false;
-        public int[] Peaks { get; set; } = [];
+        public float[] Peaks { get; set; } = [];
         public int Duration { get; set; } = 0;
         public int Listens { get; set; } = 0;
         public int Likes { get; set; } = 0;

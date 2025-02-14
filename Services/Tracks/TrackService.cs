@@ -107,6 +107,18 @@ namespace Sounds_New.Services.Tracks
             return tracks;
         }
 
+        public async Task<List<Track>?> GetUserPublicTracks(string userSlug)
+        {
+            var user = await _context.Users.Where(u => u.Slug == userSlug).FirstOrDefaultAsync();
+            if (user == null)
+            {
+                return null;
+            }
+
+            var tracks = await _context.Tracks.AsNoTracking().Where(t => t.UserId == user.Id).ToListAsync();
+            return tracks;
+        }
+
         public async Task<UpdateTrackDataStatus> UpdateTrackData(UpdateTrackDataDTO dto, int id)
         {
             var track = await _context.Tracks.FindAsync(id);
