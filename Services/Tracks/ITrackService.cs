@@ -16,5 +16,6 @@ namespace Sounds_New.Services.Tracks
         public Task<List<Track>> GetHotTracks();
         public Task<List<Track>?> GetUserPublicTracks(string userSlug);
         public Task<UpdateTrackDataStatus> UpdateTrackData(UpdateTrackDataDTO dto, int id);
+        public Task<DefaultMethodResponseDTO> DeleteTrack(int trackId, string username);
     }
 }

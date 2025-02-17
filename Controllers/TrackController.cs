@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Sounds_New.DTO;
 using Sounds_New.Models;
 using Sounds_New.Services.Tracks;
+using Sounds_New.Utils;
 
 namespace Sounds_New.Controllers
 {
@@ -15,10 +16,16 @@ namespace Sounds_New.Controllers
         [HttpGet("{slug}")]
         public async Task<ActionResult<List<Track>>> GetTrackBySlug(string slug)
         {
+            var ctxUserName = Utilites.GetIdentityUserName(HttpContext);
             var track = await _trackService.GetTrackBySlug(slug);
             if (track == null)
             {
                 return NotFound();
+            }
+
+            if (!track.IsPublic && track.User.Username != ctxUserName)
+            {
+                return Forbid();
             }
 
             return Ok(track);
@@ -62,7 +69,7 @@ namespace Sounds_New.Controllers
             {
                 400 => BadRequest(result.Message),
                 401 => Unauthorized(result.Message),
-                201 => CreatedAtAction(nameof(GetTrackBySlug), new { id = result.Track.Id }, new { result.Track.Id, result.Track.Title, result.Track.Slug, result.Track.AudioFilePath }),
+                201 => CreatedAtAction(nameof(GetTrackBySlug), new { slug = result.Track.Slug }, new { result.Track.Title, result.Track.Slug }),
                 _ => StatusCode(500, "An error occurred while creating the track")
             };
         }
@@ -84,6 +91,32 @@ namespace Sounds_New.Controllers
                 UpdateTrackDataStatus.Success => Ok(),
                 UpdateTrackDataStatus.TrackNotFound => NotFound(),
                 _ => StatusCode(500, "An error occurred while updating the track data")
+            };
+        }
+
+        [Authorize]
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteTrack(int id)
+        {
+            if (User.Identity == null || User.Identity.Name == null)
+            {
+                return Forbid();
+            }
+
+            var ctxUser = User.Identity.Name;
+
+            var result = await _trackService.DeleteTrack(id, ctxUser);
+            if (result.IsOk)
+            {
+                return NoContent();
+            }
+
+            return result.StatusCode switch
+            {
+                401 => Unauthorized(result.Message),
+                404 => NotFound(result.Message),
+                403 => Forbid(result.Message),
+                _ => StatusCode(500, "An error occurred while deleting the track")
             };
         }
     }

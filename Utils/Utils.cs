@@ -15,7 +15,10 @@ namespace Sounds_New.Utils
 
             client.BaseAddress = new Uri("http://localhost:4200");
 
-            var audioStream = new FileStream(track.AudioFilePath, FileMode.Open);
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
+            var trackFilePath = Path.Combine(uploadsFolder, track.AudioFilePath);
+
+            var audioStream = new FileStream(trackFilePath, FileMode.Open);
             var audioContent = new StreamContent(audioStream);
             audioContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("multipart/form-data");
 
@@ -24,6 +27,16 @@ namespace Sounds_New.Utils
 
             var response = await client.PostAsync("/generate", formdata);
             response.EnsureSuccessStatusCode();
+        }
+
+        public static string? GetIdentityUserName(HttpContext ctx)
+        {
+            if (ctx.User == null || ctx.User.Identity == null)
+            {
+                return null;
+            }
+
+            return ctx.User.Identity.Name;
         }
     }
 }

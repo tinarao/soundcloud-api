@@ -17,7 +17,7 @@ namespace Sounds_New.Services.Tracks
 
         public async Task<Track?> GetTrackBySlug(string slug)
         {
-            var track = await _context.Tracks.FirstAsync(t => t.Slug == slug);
+            var track = await _context.Tracks.Include(t => t.User).FirstAsync(t => t.Slug == slug);
             return track;
         }
 
@@ -74,8 +74,8 @@ namespace Sounds_New.Services.Tracks
                 Title = dto.Title,
                 Slug = slug,
                 Genres = dto.Genres,
-                ImageFilePath = artworkFilePath,
-                AudioFilePath = audioFilePath,
+                ImageFilePath = artworkFileName,
+                AudioFilePath = audioFileName,
                 UserId = user.Id,
                 User = user
             };
@@ -130,6 +130,50 @@ namespace Sounds_New.Services.Tracks
             track.Peaks = dto.Peaks;
             await _context.SaveChangesAsync();
             return UpdateTrackDataStatus.Success;
+        }
+
+        public async Task<DefaultMethodResponseDTO> DeleteTrack(int trackId, string username)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            if (user == null)
+            {
+                return new DefaultMethodResponseDTO
+                {
+                    IsOk = false,
+                    Message = "Пользователь не существует",
+                    StatusCode = 401,
+                };
+            }
+
+            var track = await _context.Tracks.FirstOrDefaultAsync(t => t.Id == trackId);
+            if (track == null)
+            {
+                return new DefaultMethodResponseDTO
+                {
+                    IsOk = false,
+                    Message = "Трек не существует",
+                    StatusCode = 404,
+                };
+            }
+
+            if (track.UserId != user.Id)
+            {
+                return new DefaultMethodResponseDTO
+                {
+                    IsOk = false,
+                    Message = "Вы не можете удалить этот трек",
+                    StatusCode = 403,
+                };
+            }
+
+            _context.Tracks.Remove(track);
+            await _context.SaveChangesAsync();
+            return new DefaultMethodResponseDTO
+            {
+                IsOk = true,
+                Message = "Трек успешно удален",
+                StatusCode = 200,
+            };
         }
     }
 }
