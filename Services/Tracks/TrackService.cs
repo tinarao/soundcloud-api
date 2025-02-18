@@ -218,5 +218,29 @@ namespace Sounds_New.Services.Tracks
                 Message = "Ok"
             };
         }
+
+        public async Task<DefaultMethodResponseDTO> IncreaseTrackListens(string slug)
+        {
+            var track = await _context.Tracks.FirstOrDefaultAsync(t => t.Slug == slug);
+            if (track == null)
+            {
+                return new DefaultMethodResponseDTO
+                {
+                    IsOk = false,
+                    Message = "Трек не найден",
+                    StatusCode = 404
+                };
+            }
+
+            track.Listens += 1;
+            await _context.SaveChangesAsync();
+
+            return new DefaultMethodResponseDTO
+            {
+                IsOk = true,
+                Message = "Ok",
+                StatusCode = 204
+            };
+        }
     }
 }

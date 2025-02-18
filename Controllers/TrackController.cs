@@ -142,5 +142,17 @@ namespace Sounds_New.Controllers
                 _ => StatusCode(500, "An error occurred while changing the track visibility")
             };
         }
+
+        [HttpPatch("{slug}/listens")]
+        public async Task<ActionResult> IncreaseTrackListens(string slug)
+        {
+            var result = await _trackService.IncreaseTrackListens(slug);
+            return result.StatusCode switch
+            {
+                204 => NoContent(),
+                404 => NotFound(result.Message),
+                _ => StatusCode(500, "An error occurred while increasing the track listens")
+            };
+        }
     }
 }
