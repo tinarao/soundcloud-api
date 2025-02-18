@@ -1,4 +1,6 @@
-﻿namespace Sounds_New.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Sounds_New.Models
 {
     public class Track
     {
@@ -18,5 +20,8 @@
         public int Downloads { get; set; } = 0;
         public int UserId { get; set; }
         public required User User { get; set; }
+
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        public DateTime CreatedAt { get; set; }
     }
 }
