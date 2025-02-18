@@ -15,6 +15,28 @@ namespace Sounds_New.Services.Users
             return user;
         }
 
+        public async Task<UserPrimaryDataDTO?> GetUserPrimaryDataById(int userId)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null)
+            {
+                return null;
+            }
+
+            var tracksCount = await _context.Tracks.Where(t => t.IsPublic == true).CountAsync(t => t.UserId == userId);
+            var subscribersCount = await _context.Subscriptions.CountAsync(u => u.User.Id == userId);
+
+            return new UserPrimaryDataDTO
+            {
+                Username = user.Username,
+                Bio = user.Bio,
+                CreatedAt = user.CreatedAt,
+                Avatar = user.AvatarFilePath,
+                SubscribersCount = subscribersCount,
+                TracksCount = tracksCount
+            };
+        }
+
         public async Task<UserStatisticDTO> GetUserStatistics(string username)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);

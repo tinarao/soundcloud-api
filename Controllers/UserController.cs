@@ -38,5 +38,17 @@ namespace Sounds_New.Controllers
             var stats = await _userService.GetUserStatistics(User.Identity.Name);
             return Ok(stats);
         }
+
+        [HttpGet("primary/{id}")]
+        public async Task<ActionResult> GetUserPrimaryDataById(int id)
+        {
+            var user = await _userService.GetUserPrimaryDataById(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(user);
+        }
     }
 }
