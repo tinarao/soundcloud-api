@@ -15,6 +15,11 @@ namespace Sounds_New.Services.Tracks
     {
         private readonly SoundsContext _context = context;
 
+        /// <summary>
+        /// Метод для поиска трека по slug
+        /// </summary>
+        /// <param name="slug">Slug трека</param>
+        /// <returns>Трек с автором. Если трек не найден, возвращает null</returns>
         public async Task<Track?> GetTrackBySlug(string slug)
         {
             var track = await _context.Tracks.Include(t => t.User).FirstAsync(t => t.Slug == slug);
@@ -72,12 +77,14 @@ namespace Sounds_New.Services.Tracks
             var track = new Track
             {
                 Title = dto.Title,
+                Description = dto.Description,
                 Slug = slug,
                 Genres = dto.Genres,
                 ImageFilePath = artworkFileName,
                 AudioFilePath = audioFileName,
                 UserId = user.Id,
-                User = user
+                User = user,
+                CreatedAt = DateTime.Now
             };
 
             var created = await _context.Tracks.AddAsync(track);

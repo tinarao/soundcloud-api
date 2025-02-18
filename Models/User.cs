@@ -28,6 +28,7 @@ namespace Sounds_New.Models
         public DateTime CreatedAt { get; set; }
 
         public ICollection<Track> Tracks { get; } = [];
+        public ICollection<Comment> Comments { get; } = [];
 
         public string? RefreshToken { get; set; }
         public DateTime? RefreshTokenExpiry { get; set; }

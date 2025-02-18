@@ -8,6 +8,7 @@ namespace Sounds_New.Db
         public DbSet<Track> Tracks => Set<Track>();
         public DbSet<SignedUrl> SignedUrls => Set<SignedUrl>();
         public DbSet<User> Users => Set<User>();
+        public DbSet<Comment> Comments => Set<Comment>();
         public DbSet<Subscription> Subscriptions => Set<Subscription>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

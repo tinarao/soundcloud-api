@@ -21,6 +21,8 @@ namespace Sounds_New.Models
         public int UserId { get; set; }
         public required User User { get; set; }
 
+        public ICollection<Comment> Comments { get; } = [];
+
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime CreatedAt { get; set; }
     }

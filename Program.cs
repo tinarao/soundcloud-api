@@ -10,6 +10,7 @@ using Sounds_New.Services.Subscriptions;
 using Sounds_New.Services.Tracks;
 using System.Text.Json.Serialization;
 using Sounds_New.Services.SignedUrl;
+using Sounds_New.Services.Comments;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,6 +53,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ISignedUrlService, SignedUrlService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ITrackService, TrackService>();
+builder.Services.AddScoped<ICommentsService, CommentsService>();
 builder.Services.AddScoped<ISubscriptionsService, SubscriptionsService>();
 
 var app = builder.Build();
