@@ -107,16 +107,25 @@ namespace Sounds_New.Services.Tracks
             return tracks;
         }
 
-        public async Task<List<Track>?> GetUserPublicTracks(string userSlug)
+        public async Task<List<Track>> GetTracksByUser(string userSlug, string? ctxUsername)
         {
-            var user = await _context.Users.Where(u => u.Slug == userSlug).FirstOrDefaultAsync();
-            if (user == null)
+            var isAuthor = false;
+
+            if (ctxUsername != null)
             {
-                return null;
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == ctxUsername);
+                if (user != null)
+                {
+                    isAuthor = user.Slug == userSlug;
+                }
             }
 
-            var tracks = await _context.Tracks.AsNoTracking().Where(t => t.UserId == user.Id).ToListAsync();
-            return tracks;
+            if (isAuthor)
+            {
+                return await _context.Tracks.Where(t => t.User.Slug == userSlug).ToListAsync();
+            }
+
+            return await _context.Tracks.Where(t => t.User.Slug == userSlug && t.IsPublic).ToListAsync();
         }
 
         public async Task<UpdateTrackDataStatus> UpdateTrackData(UpdateTrackDataDTO dto, int id)

@@ -39,9 +39,11 @@ namespace Sounds_New.Controllers
         }
 
         [HttpGet("by-user/{userSlug}")]
-        public async Task<IActionResult> GetUserPublicTracks(string userSlug)
+        public async Task<IActionResult> GetTracksByUser(string userSlug)
         {
-            var tracks = await _trackService.GetUserPublicTracks(userSlug);
+            var userCtx = Utilites.GetIdentityUserName(HttpContext);
+
+            var tracks = await _trackService.GetTracksByUser(userSlug, userCtx);
             if (tracks == null)
             {
                 return NotFound("Пользователь и/или треки не найдены");

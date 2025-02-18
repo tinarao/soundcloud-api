@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sounds_New.Services.Users;
 
@@ -23,6 +24,19 @@ namespace Sounds_New.Controllers
             }
 
             return Ok(user);
+        }
+
+        [Authorize]
+        [HttpGet("stats")]
+        public async Task<ActionResult> GetUserStatistics()
+        {
+            if (User.Identity == null || User.Identity.Name == null)
+            {
+                return Unauthorized();
+            }
+
+            var stats = await _userService.GetUserStatistics(User.Identity.Name);
+            return Ok(stats);
         }
     }
 }

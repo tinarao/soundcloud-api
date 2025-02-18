@@ -6,5 +6,6 @@ namespace Sounds_New.Services.Users
     public interface IUserService
     {
         Task<User?> GetUserBySlug(string slug);
+        Task<UserStatisticDTO> GetUserStatistics(string username);
     }
 }

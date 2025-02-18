@@ -14,7 +14,7 @@ namespace Sounds_New.Services.Tracks
         public Task<Track?> GetTrackBySlug(string slug);
         public Task<CreateTrackResultDTO> CreateTrack(CreateTrackDTO dto, string username);
         public Task<List<Track>> GetHotTracks();
-        public Task<List<Track>?> GetUserPublicTracks(string userSlug);
+        public Task<List<Track>> GetTracksByUser(string userSlug, string? ctxUsername);
         public Task<UpdateTrackDataStatus> UpdateTrackData(UpdateTrackDataDTO dto, int id);
         public Task<DefaultMethodResponseDTO> DeleteTrack(int trackId, string username);
     }

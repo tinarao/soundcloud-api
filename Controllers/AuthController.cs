@@ -77,20 +77,5 @@ namespace Sounds_New.Controllers
             var user = await _authService.GetMe(User.Identity.Name);
             return Ok(user);
         }
-
-        [Authorize]
-        [HttpGet("auth-only")]
-        public IActionResult AuthOnlyEndpoint()
-        {
-            var user = User.Identity.Name;
-            return Ok(user);
-        }
-
-        [CustomAuthorize(UserRoles.Admin)]
-        [HttpGet("admin-only")]
-        public IActionResult AdminOnlyEndpoint()
-        {
-            return Ok("You are an admin!");
-        }
     }
 }
