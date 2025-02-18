@@ -57,7 +57,8 @@ namespace Sounds_New.Services.Comments
             {
                 Text = dto.Text,
                 User = user,
-                Track = track
+                Track = track,
+                CreatedAt = DateTime.Now
             };
 
             await _context.Comments.AddAsync(comment);

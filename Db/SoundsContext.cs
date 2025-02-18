@@ -34,6 +34,12 @@ namespace Sounds_New.Db
             modelBuilder.Entity<Track>()
                 .Property(t => t.CreatedAt)
                 .HasDefaultValueSql("DATETIME('now')");
+
+            //
+
+            modelBuilder.Entity<Comment>()
+                .Property(t => t.CreatedAt)
+                .HasDefaultValueSql("DATETIME('now')");
         }
     }
 }

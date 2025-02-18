@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace Sounds_New.Models
 {
     public class Comment
@@ -6,5 +8,8 @@ namespace Sounds_New.Models
         public required string Text { get; set; }
         public User User { get; set; }
         public Track Track { get; set; }
+
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        public DateTime CreatedAt { get; set; }
     }
 }
