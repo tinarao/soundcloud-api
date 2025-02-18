@@ -18,10 +18,16 @@ namespace Sounds_New.Controllers
                 return NotFound("Пользователь и/или треки не найдены");
             }
 
-            var mime = filepath.EndsWith(".mp3") ? "audio/mpeg" : "image/jpg";
-
-            FileStream fs = new(filepath, FileMode.Open, FileAccess.Read);
-            return new FileStreamResult(fs, mime);  // TODO: Multiple MIME types
+            if (filepath.EndsWith(".mp3"))
+            {
+                FileStream fs = new(filepath, FileMode.Open, FileAccess.Read);
+                return new FileStreamResult(fs, "audio/mpeg");  // TODO: Multiple MIME types
+            }
+            else
+            {
+                FileStream fs = new(filepath, FileMode.Open, FileAccess.Read);
+                return File(fs, "image/jpg");
+            }
         }
     }
 }

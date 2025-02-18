@@ -184,5 +184,39 @@ namespace Sounds_New.Services.Tracks
                 StatusCode = 200,
             };
         }
+
+        public async Task<DefaultMethodResponseDTO> ChangeTrackVisibility(string slug, string username, bool newIsPublic)
+        {
+            var track = await _context.Tracks.Include(t => t.User).FirstOrDefaultAsync(t => t.Slug == slug);
+            if (track == null)
+            {
+                return new DefaultMethodResponseDTO
+                {
+                    IsOk = false,
+                    StatusCode = 404,
+                    Message = "Трек не найден"
+                };
+            }
+
+            if (track.User.Username != username)
+            {
+                return new DefaultMethodResponseDTO
+                {
+                    IsOk = false,
+                    StatusCode = 403,
+                    Message = "Действие запрещено"
+                };
+            }
+
+            track.IsPublic = newIsPublic;
+            await _context.SaveChangesAsync();
+
+            return new DefaultMethodResponseDTO
+            {
+                IsOk = true,
+                StatusCode = 204,
+                Message = "Ok"
+            };
+        }
     }
 }

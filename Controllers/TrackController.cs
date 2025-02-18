@@ -121,5 +121,26 @@ namespace Sounds_New.Controllers
                 _ => StatusCode(500, "An error occurred while deleting the track")
             };
         }
+
+        [Authorize]
+        [HttpPatch("{slug}/visibility/{newIsPublic}")]
+        public async Task<ActionResult> ChangeTrackVisibility(string slug, bool newIsPublic)
+        {
+            var ctxUserName = Utilites.GetIdentityUserName(HttpContext);
+            if (ctxUserName == null)
+            {
+                return Forbid();
+            }
+
+            var result = await _trackService.ChangeTrackVisibility(slug, ctxUserName, newIsPublic);
+
+            return result.StatusCode switch
+            {
+                204 => NoContent(),
+                404 => NotFound(result.Message),
+                403 => Forbid(result.Message),
+                _ => StatusCode(500, "An error occurred while changing the track visibility")
+            };
+        }
     }
 }
