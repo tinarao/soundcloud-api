@@ -8,6 +8,13 @@ namespace Sounds_New.Utils
 {
     public class Utilites
     {
+        public enum FileKind
+        {
+            UserAvatar,
+            TrackArtwork,
+            TrackAudio
+        }
+
         public async static void SendTrackToAnalysisService(Track track)
         {
             var client = new HttpClient();

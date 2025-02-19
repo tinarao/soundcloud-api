@@ -9,6 +9,43 @@ namespace Sounds_New.Services.Users
     {
         private readonly SoundsContext _context = context;
 
+        public async Task<DefaultMethodResponseDTO> ChangeUserAvatar(IFormFile newAvatar, string username)
+        {
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            if (user == null)
+            {
+                return new DefaultMethodResponseDTO
+                {
+                    IsOk = false,
+                    StatusCode = 404,
+                    Message = "Пользователь не найден"
+                };
+            }
+
+            var avatarFileName = $"{Guid.NewGuid()}_{newAvatar.FileName}";
+            var avatarFilePath = Path.Combine(uploadsFolder, avatarFileName);
+
+            using var stream = new FileStream(avatarFilePath, FileMode.Create);
+            await newAvatar.CopyToAsync(stream);
+
+            user.AvatarFilePath = avatarFileName;
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+
+            return new DefaultMethodResponseDTO
+            {
+                IsOk = true,
+                StatusCode = 200,
+                Message = "Успешно"
+            };
+        }
+
         public async Task<User?> GetUserBySlug(string slug)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Slug == slug);
@@ -71,11 +108,11 @@ namespace Sounds_New.Services.Users
                 }
             }
 
-            float likesPerListen = overallLikes == 0 ? 0 : overallListens / overallLikes;
-            float listensPerTrack = overallListens == 0 ? 0 : overallListens / tracksCount;
-            float likesPerSubscriber = overallLikes == 0 ? 0 : overallLikes / subscribersCount;
-            float listensPerSubscriber = overallListens == 0 ? 0 : overallListens / subscribersCount;
-            float likesPerTrack = overallLikes == 0 ? 0 : overallLikes / tracksCount;
+            float likesPerListen = (overallLikes == 0 || overallListens == 0) ? 0 : overallListens / overallLikes;
+            float listensPerTrack = (overallListens == 0 || tracksCount == 0) ? 0 : overallListens / tracksCount;
+            float likesPerSubscriber = (overallLikes == 0 || subscribersCount == 0) ? 0 : overallLikes / subscribersCount;
+            float listensPerSubscriber = (overallListens == 0 || subscribersCount == 0) ? 0 : overallListens / subscribersCount;
+            float likesPerTrack = (overallLikes == 0 || tracksCount == 0) ? 0 : overallLikes / tracksCount;
 
             return new UserStatisticDTO
             {

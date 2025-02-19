@@ -4,7 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Sounds_New.DTO;
 using Sounds_New.Services.Users;
+using Sounds_New.Utils;
 
 namespace Sounds_New.Controllers
 {
@@ -49,6 +51,37 @@ namespace Sounds_New.Controllers
             }
 
             return Ok(user);
+        }
+
+        [Authorize]
+        [HttpPatch("avatar")]
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult> ChangeUserAvatar([FromForm] ChangeAvatarDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var ctxUsername = Utilites.GetIdentityUserName(HttpContext);
+            if (ctxUsername == null)
+            {
+                return Unauthorized();
+            }
+
+            if (dto.NewAvatar.Length / 1024 / 1024 > 2)
+            {
+                return BadRequest();
+            }
+
+            var result = await _userService.ChangeUserAvatar(dto.NewAvatar, ctxUsername);
+
+            return result.StatusCode switch
+            {
+                404 => NotFound(result.Message),
+                200 => Ok(),
+                _ => StatusCode(500, "An error occurred while changing the avatar")
+            };
         }
     }
 }

@@ -37,4 +37,11 @@ namespace Sounds_New.DTO
         [EmailAddress(ErrorMessage = "Некорректная электронная почта")]
         public string Email { get; set; }
     }
+
+    public class ChangeAvatarDTO
+    {
+        [Required(ErrorMessage = "Artwork file is required.")]
+        [DataType(DataType.Upload)]
+        public IFormFile NewAvatar { get; set; }
+    }
 }

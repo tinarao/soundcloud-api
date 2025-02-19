@@ -11,6 +11,7 @@ using Sounds_New.Services.Tracks;
 using System.Text.Json.Serialization;
 using Sounds_New.Services.SignedUrl;
 using Sounds_New.Services.Comments;
+using Sounds_New.Services.Files;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,6 +53,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ISignedUrlService, SignedUrlService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<ITrackService, TrackService>();
 builder.Services.AddScoped<ICommentsService, CommentsService>();
 builder.Services.AddScoped<ISubscriptionsService, SubscriptionsService>();
