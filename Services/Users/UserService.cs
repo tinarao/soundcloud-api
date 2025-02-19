@@ -52,25 +52,47 @@ namespace Sounds_New.Services.Users
             return user;
         }
 
-        public async Task<UserPrimaryDataDTO?> GetUserPrimaryDataById(int userId)
+        public async Task<UserPrimaryDataDTO?> GetUserPrimaryDataBySlug(string slug)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Slug == slug);
+
             if (user == null)
             {
                 return null;
             }
 
-            var tracksCount = await _context.Tracks.Where(t => t.IsPublic == true).CountAsync(t => t.UserId == userId);
-            var subscribersCount = await _context.Subscriptions.CountAsync(u => u.User.Id == userId);
+            var tracksCount = await _context
+                .Tracks
+                .Include(t => t.User)
+                .Where(t => t.IsPublic == true)
+                .CountAsync(t => t.User.Slug == slug);
+
+
+            var subscribersCount = await _context
+                .Subscriptions
+                .Include(s => s.User)
+                .CountAsync(u => u.User.Slug == slug);
+
+            var totalListens = await _context
+                .Tracks
+                .Include(t => t.User)
+                .Where(t => t.IsPublic)
+                .Where(t => t.User.Slug == slug)
+                .SumAsync(t => t.Listens);
 
             return new UserPrimaryDataDTO
             {
+                Id = user.Id,
                 Username = user.Username,
                 Bio = user.Bio,
                 CreatedAt = user.CreatedAt,
-                Avatar = user.AvatarFilePath,
+                AvatarFilePath = user.AvatarFilePath,
+                BannerFilePath = user.BannerFilePath,
+                Links = user.Links,
                 SubscribersCount = subscribersCount,
-                TracksCount = tracksCount
+                TracksCount = tracksCount,
+                Slug = user.Slug,
+                TotalListens = totalListens
             };
         }
 

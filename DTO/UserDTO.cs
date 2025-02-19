@@ -4,12 +4,17 @@ namespace Sounds_New.DTO
 {
     public class UserPrimaryDataDTO
     {
+        public required int Id { get; set; }
         public required string Username { get; set; }
+        public required string Slug { get; set; }
         public string? Bio { get; set; }
-        public string? Avatar { get; set; }
-        public int TracksCount { get; set; }
-        public int SubscribersCount { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public string? AvatarFilePath { get; set; }
+        public string? BannerFilePath { get; set; }
+        public required string[] Links { get; set; } = [];
+        public required int TracksCount { get; set; }
+        public required int SubscribersCount { get; set; }
+        public required int TotalListens { get; set; }
+        public required DateTime CreatedAt { get; set; }
     }
 
     public class UserStatisticDTO : DefaultMethodResponseDTO

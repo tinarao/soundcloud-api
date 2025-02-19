@@ -41,10 +41,10 @@ namespace Sounds_New.Controllers
             return Ok(stats);
         }
 
-        [HttpGet("primary/{id}")]
-        public async Task<ActionResult> GetUserPrimaryDataById(int id)
+        [HttpGet("primary/{slug}")]
+        public async Task<ActionResult> GetUserPrimaryDataBySlug(string slug)
         {
-            var user = await _userService.GetUserPrimaryDataById(id);
+            var user = await _userService.GetUserPrimaryDataBySlug(slug);
             if (user == null)
             {
                 return NotFound();

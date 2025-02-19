@@ -7,7 +7,7 @@ namespace Sounds_New.Services.Users
     {
         Task<User?> GetUserBySlug(string slug);
         Task<UserStatisticDTO> GetUserStatistics(string username);
-        Task<UserPrimaryDataDTO?> GetUserPrimaryDataById(int userId);
+        Task<UserPrimaryDataDTO?> GetUserPrimaryDataBySlug(string slug);
         Task<DefaultMethodResponseDTO> ChangeUserAvatar(IFormFile newAvatar, string username);
     }
 }
