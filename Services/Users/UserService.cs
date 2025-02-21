@@ -52,6 +52,29 @@ namespace Sounds_New.Services.Users
             return user;
         }
 
+        public async Task<DefaultMethodResponseDTO> SetUserLinks(SetUserLinksDTO dto, string username)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            if (user == null)
+            {
+                return new DefaultMethodResponseDTO
+                {
+                    IsOk = false,
+                    StatusCode = 404,
+                    Message = "Пользователь не найден"
+                };
+            }
+
+            user.Links = dto.Links;
+            await _context.SaveChangesAsync();
+            return new DefaultMethodResponseDTO
+            {
+                IsOk = true,
+                StatusCode = 200,
+                Message = "Обновлено"
+            };
+        }
+
         public async Task<UserPrimaryDataDTO?> GetUserPrimaryDataBySlug(string slug)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Slug == slug);

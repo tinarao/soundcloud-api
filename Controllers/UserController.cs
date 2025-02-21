@@ -54,6 +54,31 @@ namespace Sounds_New.Controllers
         }
 
         [Authorize]
+        [HttpPatch("links")]
+        public async Task<ActionResult> SetUserLinks(SetUserLinksDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var ctxUsername = Utilites.GetIdentityUserName(HttpContext);
+            if (ctxUsername == null)
+            {
+                return Unauthorized();
+            }
+
+            var result = await _userService.SetUserLinks(dto, ctxUsername);
+
+            return result.StatusCode switch
+            {
+                404 => NotFound(result.Message),
+                200 => Ok(),
+                _ => StatusCode(500, "An error occurred while changing the links")
+            };
+        }
+
+        [Authorize]
         [HttpPatch("avatar")]
         [Consumes("multipart/form-data")]
         public async Task<ActionResult> ChangeUserAvatar([FromForm] ChangeAvatarDTO dto)

@@ -17,6 +17,10 @@ namespace Sounds_New.DTO
         public required DateTime CreatedAt { get; set; }
     }
 
+    public class SetUserLinksDTO
+    {
+        public required string[] Links { get; set; }
+    }
     public class UserStatisticDTO : DefaultMethodResponseDTO
     {
         public int OverallListens { get; set; }
