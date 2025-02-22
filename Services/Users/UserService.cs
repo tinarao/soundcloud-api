@@ -144,7 +144,7 @@ namespace Sounds_New.Services.Users
 
             foreach (var track in tracks)
             {
-                overallLikes += track.Likes;
+                overallLikes += track.LikesCount;
                 overallListens += track.Listens;
 
                 if (track.IsPublic)

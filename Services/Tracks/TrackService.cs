@@ -290,5 +290,51 @@ namespace Sounds_New.Services.Tracks
             var slug = new SlugHelper().GenerateSlug($"{title}-by-{username}");
             return slug;
         }
+
+        /// <summary>
+        /// Toggles a like on the specified track for the given user. If like already exists, it is deleted.
+        /// </summary>
+        /// <param name="trackSlug">The slug of the track to be liked or unliked.</param>
+        /// <param name="ctxUsername">The username of the user performing the action.</param>
+        /// <returns>A response indicating the success or failure of the operation. Returns a not found response if the track or user is not found.</returns>
+
+        public async Task<DefaultMethodResponseDTO> ChangeTrackLikes(string trackSlug, string ctxUsername)
+        {
+            var trackTask = _context.Tracks.FirstOrDefaultAsync(t => t.Slug == trackSlug);
+            var userTask = _context.Users.FirstOrDefaultAsync(u => u.Username == ctxUsername);
+
+            await Task.WhenAll(trackTask, userTask);
+
+            var track = trackTask.Result;
+            var user = userTask.Result;
+
+            if (user is null || track is null)
+            {
+                return DefaultReturnFabric.NotFound("Трек и/или пользователь не найдены");
+            }
+
+            var like = await _context.Likes.FirstOrDefaultAsync(l => l.TrackId == track.Id && l.UserId == user.Id);
+            if (like != null)
+            {
+                _context.Likes.Remove(like);
+                track.LikesCount -= 1;
+
+                await _context.SaveChangesAsync();
+
+                return DefaultReturnFabric.Ok("Ok");
+            }
+
+            var newLike = new Like
+            {
+                TrackId = track.Id,
+                UserId = user.Id
+            };
+
+            _context.Likes.Add(newLike);
+            track.LikesCount += 1;
+            await _context.SaveChangesAsync();
+
+            return DefaultReturnFabric.Ok("Ok");
+        }
     }
 }

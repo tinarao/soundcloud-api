@@ -20,5 +20,6 @@ namespace Sounds_New.Services.Tracks
         public Task<DefaultMethodResponseDTO> DeleteTrack(int trackId, string username);
         public Task<DefaultMethodResponseDTO> ChangeTrackVisibility(string slug, string username, bool newIsPublic);
         public Task<DefaultMethodResponseDTO> IncreaseTrackListens(string slug);
+        public Task<DefaultMethodResponseDTO> ChangeTrackLikes(string trackSlug, string ctxUsername);
     }
 }

@@ -16,12 +16,12 @@ namespace Sounds_New.Models
         public float[] Peaks { get; set; } = [];
         public int Duration { get; set; } = 0;
         public int Listens { get; set; } = 0;
-        public int Likes { get; set; } = 0;
+        public int LikesCount { get; set; } = 0;
         public int Downloads { get; set; } = 0;
         public int UserId { get; set; }
         public required User User { get; set; }
-
         public ICollection<Comment> Comments { get; } = [];
+        public ICollection<Like> Likes { get; } = [];
 
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime CreatedAt { get; set; }

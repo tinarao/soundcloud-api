@@ -154,6 +154,26 @@ namespace Sounds_New.Controllers
         }
 
         [Authorize]
+        [HttpPatch("like/{slug}")]
+        public async Task<ActionResult> ChangeTrackLikes(string slug)
+        {
+            var ctxUsername = Utilites.GetIdentityUserName(HttpContext);
+            if (ctxUsername == null)
+            {
+                return Forbid();
+            }
+
+            var result = await _trackService.ChangeTrackLikes(slug, ctxUsername);
+
+            return result.StatusCode switch
+            {
+                200 => Ok(),
+                404 => NotFound(result.Message),
+                _ => StatusCode(500, "An error occurred while changing the track likes")
+            };
+        }
+
+        [Authorize]
         [HttpPatch("{slug}/visibility/{newIsPublic}")]
         public async Task<ActionResult> ChangeTrackVisibility(string slug, bool newIsPublic)
         {
