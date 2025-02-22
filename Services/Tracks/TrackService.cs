@@ -39,7 +39,7 @@ namespace Sounds_New.Services.Tracks
                 return result;
             }
 
-            var slug = new SlugHelper().GenerateSlug($"{dto.Title}-by-{user.Username}");
+            var slug = GenerateTrackSlug(dto.Title, user.Username);
 
             var duplicate = await _context.Tracks.AnyAsync(t => t.Slug == slug);
             if (duplicate)
@@ -106,6 +106,39 @@ namespace Sounds_New.Services.Tracks
                 Message = "Track created successfully",
                 Track = created.Entity
             };
+        }
+
+        public async Task<DefaultMethodResponseDTO> UpdateTrackPrimaryData(UpdateTrackPrimaryDataDTO dto, string trackSlug, string ctxUsername)
+        {
+            var track = await _context.Tracks.Include(t => t.User).FirstOrDefaultAsync(t => t.Slug == trackSlug);
+            if (track == null)
+            {
+                return DefaultReturnFabric.NotFound("Трек не найден");
+            }
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == ctxUsername);
+            if (user == null)
+            {
+                return DefaultReturnFabric.Unauthorized("Ошибка авторизации");
+            }
+
+            if (track.User.Id != user.Id)
+            {
+                return DefaultReturnFabric.Forbidden("Вы не можете редактировать этот трек");
+            }
+
+            var slug = GenerateTrackSlug(dto.Title, user.Username);
+
+            track.Title = dto.Title;
+            track.Slug = slug;
+            track.Description = dto.Description;
+            track.Genres = dto.Genres;
+            track.IsDownloadsEnabled = dto.IsDownloadsEnabled;
+            track.IsPublic = dto.IsPublic;
+
+            await _context.SaveChangesAsync();
+
+            return DefaultReturnFabric.Ok(slug);
         }
 
         public async Task<List<Track>> GetHotTracks()
@@ -248,6 +281,14 @@ namespace Sounds_New.Services.Tracks
                 Message = "Ok",
                 StatusCode = 204
             };
+        }
+
+        ///
+
+        private string GenerateTrackSlug(string title, string username)
+        {
+            var slug = new SlugHelper().GenerateSlug($"{title}-by-{username}");
+            return slug;
         }
     }
 }

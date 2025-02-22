@@ -123,6 +123,37 @@ namespace Sounds_New.Controllers
         }
 
         [Authorize]
+        [HttpPatch("{slug}/primary")]
+        public async Task<ActionResult> UpdateTrackPrimaryData(UpdateTrackPrimaryDataDTO dto, string slug)
+        {
+            if (!ModelState.IsValid)
+            {
+                return UnprocessableEntity(ModelState);
+            }
+
+            if (dto.Genres.Length > 5 && dto.Genres.Length < 1)
+            {
+                return BadRequest("Количество жанров должно быть от 1 до 5");
+            }
+
+            var ctxUsername = Utilites.GetIdentityUserName(HttpContext);
+            if (ctxUsername == null)
+            {
+                return Forbid();
+            }
+
+            var result = await _trackService.UpdateTrackPrimaryData(dto, slug, ctxUsername);
+            return result.StatusCode switch
+            {
+                200 => Ok(result.Message),
+                401 => Unauthorized(result.Message),
+                404 => NotFound(result.Message),
+                403 => Forbid(result.Message),
+                _ => StatusCode(500, "An error occurred while updating the track primary data")
+            };
+        }
+
+        [Authorize]
         [HttpPatch("{slug}/visibility/{newIsPublic}")]
         public async Task<ActionResult> ChangeTrackVisibility(string slug, bool newIsPublic)
         {

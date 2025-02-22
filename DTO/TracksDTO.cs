@@ -27,6 +27,18 @@ namespace Sounds_New.DTO
         public string[] Genres { get; set; } = [];
     }
 
+    public class UpdateTrackPrimaryDataDTO
+    {
+        [StringLength(100, MinimumLength = 3, ErrorMessage = "Длина названия не может быть больше 100 символов и меньше 3 символов.")]
+        public required string Title { get; set; }
+
+        [StringLength(1100, ErrorMessage = "Максимальная длина описания - 1100 символов.")]
+        public required string Description { get; set; }
+        public required string[] Genres { get; set; }
+        public required bool IsPublic { get; set; }
+        public required bool IsDownloadsEnabled { get; set; }
+    }
+
     public class CreateTrackResultDTO
     {
         public required int Status { get; set; }
